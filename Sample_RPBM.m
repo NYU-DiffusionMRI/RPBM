@@ -17,8 +17,8 @@ clear all; close all; clc;
 % at b=500 s/mm^2 and 3 b=0. Outlier rejection was performed using IRESTORE
 % and tensor estimation was performed using weighted linear least squares.
 %
-% Chang   et al. Magn Reson Med 68: 1654?1663 (2012) 
-% Veraart et al. Neuroimage     81:  335-46   (2013)
+% Chang   et al. IRESTORE. Magn Reson Med 68: 1654?1663 (2012) 
+% Veraart et al. WLLS    .  Neuroimage     81:  335-46   (2013)
 
 time = [57,75,100,200,350,500,750,1000,1200];                              %Diffusion Time
 DL   = [1.7758,1.7635,1.7511,1.7189,1.7110,1.6791,1.6780,1.6580,1.6864];   %Longitudinal Diffusivity
