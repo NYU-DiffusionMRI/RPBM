@@ -24,6 +24,10 @@ time = [57,75,100,200,350,500,750,1000,1200];                              %Diff
 DL   = [1.7758,1.7635,1.7511,1.7189,1.7110,1.6791,1.6780,1.6580,1.6864];   %Longitudinal Diffusivity
 DR   = [1.3523,1.2932,1.2635,1.1738,1.1142,1.0645,1.0133,0.9818,1.0002];   %Radial Diffusivity
 
+uDL=[0.1438,0.1579,0.1407,0.1542,0.1686,0.1596,0.1886,0.2093,0.2460];
+uDR=[0.1050,0.0902,0.0858,0.0993,0.1075,0.1133,0.1348,0.1862,0.2045];
+
+UseWeights=1;
 
 %% Fitting by Fixing D0 to L1(t~inf) 
 % In principle, D0 should be equal to L1 at long times. However, in the 
@@ -33,37 +37,36 @@ DR   = [1.3523,1.2932,1.2635,1.1738,1.1142,1.0645,1.0133,0.9818,1.0002];   %Radi
 % Conversely if the structure of interest is highly restricted (small 
 % diameters), diffusion times may be too long to accurately estimate D0. 
 
-Dfix = mean(DL(time>200));
+Dfix = mean(DL(time>200));                                                 %Fixing D0
+if UseWeights==1; W=1./(uDR.^2); else; W=1; end                            %Weights from std of Dr(t)
 
-fun_fix = @(F,xdata) Dfix*get_Dt_RPBM(xdata./F(1),F(2));
-lb = [0  0]; ub = [Inf Inf]; x0 = [100 2];
+fun_fix = @(F,xdata) W.*Dfix.*get_Dt_RPBM(xdata./F(1),F(2));
+lb = [0 0]; ub = [Inf Inf]; x0 = [100 2];
 
-[Xfix,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_fix,x0,time,DR,lb,ub);
+[Xfix,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_fix,x0,time,DR.*W,lb,ub);
 ci_fix = nlparci(Xfix,resid,'jacobian',J);
 
 [RPBM_fix,uRPBM_fix]=RPBM_Process([Dfix,Xfix],[0 0;ci_fix]);
-
 
 %% Fitting by Varying D0
 % If there is sufficient SNR and sampling of t, fitting over 3 parameters 
 % would be the ideal approach. Given your acquisition, I recommend trying
 % both approaches [fitting/fixing D0] to see if they are in agreement. 
 
-fun_vary = @(F,xdata) F(1)*get_Dt_RPBM(xdata./F(2),F(3));
-lb  =  [0      0   0]; ub  =  [3    Inf Inf]; x0  =  [Dfix 100   2];
+fun_vary = @(F,xdata) W.*F(1).*get_Dt_RPBM(xdata./F(2),F(3));
+lb = [0 0 0]; ub = [3 Inf Inf]; x0 = [Dfix 100 2];
 
-[Xvary,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_vary,x0,time,DR,lb,ub);
+[Xvary,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_vary,x0,time,DR.*W,lb,ub);
 ci_vary = nlparci(Xvary,resid,'jacobian',J);
 
 [RPBM_vary,uRPBM_vary]=RPBM_Process(Xvary,ci_vary);
-
 
 %% Plotting Results
 
 txn=linspace(0,14000,20000);
 VFIX=fun_fix(Xfix,txn);
 VFIT=fun_vary(Xvary,txn);
-%%
+
 figure; 
 subplot(1,2,1)
 plot(time,DL,'rs','markerfacecolor','r','markersize',10); hold on;
