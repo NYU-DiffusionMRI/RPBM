@@ -40,10 +40,10 @@ UseWeights=1;
 Dfix = mean(DL(time>200));                                                 %Fixing D0
 if UseWeights==1; W=1./(uDR.^2); else; W=1; end                            %Weights from std of Dr(t)
 
-fun_fix = @(F,xdata) W.*Dfix.*get_Dt_RPBM(xdata./F(1),F(2));
+fun_fix = @(F,xdata) xdata(2,:).*Dfix.*get_Dt_RPBM(xdata(1,:)./F(1),F(2));
 lb = [0 0]; ub = [Inf Inf]; x0 = [100 2];
 
-[Xfix,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_fix,x0,time,DR.*W,lb,ub);
+[Xfix,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_fix,x0,[time;W],DR.*W,lb,ub);
 ci_fix = nlparci(Xfix,resid,'jacobian',J);
 
 [RPBM_fix,uRPBM_fix]=RPBM_Process([Dfix,Xfix],[0 0;ci_fix]);
@@ -53,10 +53,10 @@ ci_fix = nlparci(Xfix,resid,'jacobian',J);
 % would be the ideal approach. Given your acquisition, I recommend trying
 % both approaches [fitting/fixing D0] to see if they are in agreement. 
 
-fun_vary = @(F,xdata) W.*F(1).*get_Dt_RPBM(xdata./F(2),F(3));
+fun_vary = @(F,xdata) xdata(2,:).*F(1).*get_Dt_RPBM(xdata(1,:)./F(2),F(3));
 lb = [0 0 0]; ub = [3 Inf Inf]; x0 = [Dfix 100 2];
 
-[Xvary,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_vary,x0,time,DR.*W,lb,ub);
+[Xvary,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_vary,x0,[time;W],DR.*W,lb,ub);
 ci_vary = nlparci(Xvary,resid,'jacobian',J);
 
 [RPBM_vary,uRPBM_vary]=RPBM_Process(Xvary,ci_vary);
@@ -64,8 +64,8 @@ ci_vary = nlparci(Xvary,resid,'jacobian',J);
 %% Plotting Results
 
 txn=linspace(0,14000,20000);
-VFIX=fun_fix(Xfix,txn);
-VFIT=fun_vary(Xvary,txn);
+VFIX=fun_fix(Xfix,[txn;ones([1 length(txn)])]);
+VFIT=fun_vary(Xvary,[txn;ones([1 length(txn)])]);
 
 figure; 
 subplot(1,2,1)
