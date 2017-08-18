@@ -5,12 +5,10 @@ clear all; close all; clc;
 % get_Dt_RPBM to estimate parameters tau and zeta. Afterwards, RPBM_process
 % is used to parse these parameters and output relevant biophysical. 
 %
-%
 % Novikov   et al. Nature Physics 7:508 (2011)
 % Fiermeans et al. NMR in Biomed 30:e3612 (2017)
 %
 % (c) Gregory Lemberskiy 2017 gregorylemberskiy@gmail.com
-
 
 %% Input - Sample Soleus Muscle D(t) following DTI Tensor Fitting
 % Soleus ROI from a DWI acquisition using 3x3x5 mm^3 voxels, 20 directions
@@ -29,62 +27,74 @@ uDR=[0.1050,0.0902,0.0858,0.0993,0.1075,0.1133,0.1348,0.1862,0.2045];
 
 UseWeights=1;
 
-%% Fitting by Fixing D0 to L1(t~inf) 
-% In principle, D0 should be equal to L1 at long times. However, in the 
-% presense of noisy data this the eigenvalues will repel from one another
-% causing a systematic bias on parameter estimation. 
-%
-% Conversely if the structure of interest is highly restricted (small 
-% diameters), diffusion times may be too long to accurately estimate D0. 
+%% RPBM FITTING
 
-Dfix = mean(DL(time>200));                                                 %Fixing D0
+FIX_D0=0;
 if UseWeights==1; W=1./(uDR.^2); else; W=1; end                            %Weights from std of Dr(t)
 
-fun_fix = @(F,xdata) xdata(2,:).*Dfix.*get_Dt_RPBM(xdata(1,:)./F(1),F(2));
-lb = [0 0]; ub = [Inf Inf]; x0 = [100 2];
+%% Fitting by Fixing D0 to L1(t~inf)
+% In principle, D0 should be equal to L1 at long times. However, in the
+% presense of noisy data this the eigenvalues will repel from one another
+% causing a systematic bias on parameter estimation.
+%
+% Conversely if the structure of interest is highly restricted (small
+% diameters), diffusion times may be too long to accurately estimate D0.
+Dfix = mean(DL(time>200));                                                 %Fixing D0 to L1(t~inf)
 
-[Xfix,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_fix,x0,[time;W],DR.*W,lb,ub);
-ci_fix = nlparci(Xfix,resid,'jacobian',J);
+opt = fitoptions('Method','NonlinearLeastSquares',...
+    'Lower',[0,0],...
+    'Upper',[Inf,Inf],...
+    'Startpoint',[300,2],...
+    'Robust','bisquare',...
+    'Weights',W);
+fitDapp = fittype('D*get_Dt_2015(x/tau,zeta)','problem','D','options',opt);
+[fitresult,gof] = fit(time',DR',fitDapp,'problem',double(Dfix));
+[RPBM_F,uRPBM_F]=RPBM_Process([Dfix,coeffvalues(fitresult)],[0,0;confint(fitresult)']);%Calculate Various RPBM Parameters and save in structure
+txn=linspace(1,100000,100000);
+RPBM_FIX=squeeze(fitDapp(fitresult.tau,fitresult.zeta,fitresult.D,txn));
 
-[RPBM_fix,uRPBM_fix]=RPBM_Process([Dfix,Xfix],[0 0;ci_fix]);
 
 %% Fitting by Varying D0
-% If there is sufficient SNR and sampling of t, fitting over 3 parameters 
+% If there is sufficient SNR and sampling of t, fitting over 3 parameters
 % would be the ideal approach. Given your acquisition, I recommend trying
-% both approaches [fitting/fixing D0] to see if they are in agreement. 
+% both approaches [fitting/fixing D0] to see if they are in agreement.
 
-fun_vary = @(F,xdata) xdata(2,:).*F(1).*get_Dt_RPBM(xdata(1,:)./F(2),F(3));
-lb = [0 0 0]; ub = [3 Inf Inf]; x0 = [Dfix 100 2];
+Dfix = mean(DL(time>200));                                                 %Starting Value at D0~L1(t~inf)
+opt = fitoptions('Method','NonlinearLeastSquares',...
+    'Lower',[0,0],...
+    'Upper',[Inf,Inf,Inf],...
+    'Startpoint',[Dfix,300,2],...
+    'Robust','bisquare',...
+    'Weights',W);
+fitDapp = fittype('D*get_Dt_2015(x/tau,zeta)','options',opt);
+[fitresult,gof] = fit(time',DR',fitDapp);
+[RPBM_V,uRPBM_V]=RPBM_Process([coeffvalues(fitresult)],[confint(fitresult)']);%Calculate Various RPBM Parameters and save in structure
 
-[Xvary,resnorm,resid,exitflag,output,lambda,J] = lsqcurvefit(fun_vary,x0,[time;W],DR.*W,lb,ub);
-ci_vary = nlparci(Xvary,resid,'jacobian',J);
+txn=linspace(1,100000,100000);
+RPBM_VARY=squeeze(fitDapp(fitresult.D,fitresult.tau,fitresult.zeta,txn));
 
-[RPBM_vary,uRPBM_vary]=RPBM_Process(Xvary,ci_vary);
+%% Plotting Fits
+% Much of the transient time-dependence of D(t) happens at the shortest
+% diffusion times. It is often valuable to inspect D(t) on a semilog scale.
 
-%% Plotting Results
-
-txn=linspace(0,14000,20000);
-VFIX=fun_fix(Xfix,[txn;ones([1 length(txn)])]);
-VFIT=fun_vary(Xvary,[txn;ones([1 length(txn)])]);
-
-figure; 
+figure(1)
 subplot(1,2,1)
 plot(time,DL,'rs','markerfacecolor','r','markersize',10); hold on;
 plot(time,DR,'ro','markerfacecolor','r','markersize',10);
-plot(txn,VFIX,'r--','linewidth',2)
-plot(txn,VFIT,'b--','linewidth',2)
+x1(1)=plot(txn,RPBM_FIX,'r--','linewidth',2);
+x1(2)=plot(txn,RPBM_VARY,'b--','linewidth',2);
 xlabel('Time [ms]','fontsize',20)
 ylabel('D_{||}, D_\perp','fontsize',20)
 set(gca,'linewidth',2,'fontweight','bold')
 pbaspect([1 1 1])
-ylim([0.9 1.9])
+ylim([0.8 1.9])
 xlim([0 1400])
 
 subplot(1,2,2)
 plot(time,DL,'rs','markerfacecolor','r','markersize',10); hold on;
 plot(time,DR,'ro','markerfacecolor','r','markersize',10);
-plot(txn,VFIX,'r--','linewidth',2)
-plot(txn,VFIT,'b--','linewidth',2)
+plot(txn,RPBM_FIX,'r--','linewidth',2)
+plot(txn,RPBM_VARY,'b--','linewidth',2)
 xlabel('Time [ms]','fontsize',20)
 ylabel('D_{||}, D_\perp','fontsize',20)
 set(gca,'linewidth',2,'fontweight','bold')
@@ -92,5 +102,6 @@ set(gca,'xscale','log')
 set(gca,'xtick',[1 10 100 500 2500 10000])
 title('Semilog X','fontsize',20)
 pbaspect([1 1 1])
-ylim([0.9 1.9])
+ylim([0.8 1.9])
 xlim([txn(1) txn(end)])
+
