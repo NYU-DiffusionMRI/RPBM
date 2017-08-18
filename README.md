@@ -4,6 +4,8 @@ The following scripts are intended for the use in modeling the dependence of dif
 Moreover, the RPBM has been identified as a powerful model to describe the microstructure of muscle tissue. It has been applied in-vivo for quantifying muscle myofiber diameter and sarcolemma membrane permeability (3,4). 
 
 ------------------------------------------------------------------------------------------------------------------------------------------
+Please cite the following works.
+
 (1)Novikov DS, Fieremans E, Jensen JH, Helpern JA. Random walk with barriers. Nat Phys 2011; 7(6): 508–514. DOI:10.1038/nphys1936.6. 
 
 (2)Novikov DS,  Jensen  JH,  Helpern JA,  Fieremans E.  Revealingmesoscopic structural universality with diffusion. Proc Natl Acad SciU S A 2014; 111(14): 5088–5093. DOI:10.1073/pnas.1316944111.7. 
