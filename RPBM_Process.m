@@ -19,28 +19,24 @@ RPBM.TR         = RPBM.a/(2*RPBM.kappa);                                   %Resi
 
 %% Error Bounds
 
-if C(1,2)==0
-    uRPBM.D0          = 0;
+if C(1,1)==C(1,2)
+    uRPBM.D0      = C(1,1);
 else
-    uRPBM.D0          = (C(1,2)-RPBM.D0 )/2;
+    uRPBM.D0      = (C(1,2)-RPBM.D0 )/2;
 end
 
 uRPBM.tau         = (C(2,2)-RPBM.tau)/2;
 uRPBM.zeta        = (C(3,2)-RPBM.zeta)/2;
 
 uRPBM.tortuosity = uRPBM.zeta;
-if C(1,2)==0
-    uRPBM.L= 0.5*RPBM.D0*uRPBM.tau/RPBM.tau;
-else
-    uRPBM.L= 0.5*sqrt((uRPBM.D0/RPBM.D0)^2 ...
+
+uRPBM.L           = 0.5*sqrt((uRPBM.D0/RPBM.D0)^2 ...
         +(uRPBM.tau/RPBM.tau)^2)*(RPBM.D0*RPBM.tau);
-end
 uRPBM.a           = 2  *sqrt((uRPBM.L/RPBM.L)^2+(uRPBM.zeta/RPBM.zeta)^2);
 uRPBM.kappa       = 0.5*sqrt((uRPBM.L/RPBM.L)^2+(uRPBM.D0/RPBM.D0)^2);
 uRPBM.SV          = 0.5*sqrt((uRPBM.L/RPBM.L)^2+(uRPBM.zeta/RPBM.zeta)^2);
 uRPBM.TD          = 0.5*sqrt((2*uRPBM.a/RPBM.a)^2+(uRPBM.D0/RPBM.D0)^2);
 uRPBM.TR          = 0.5*sqrt((uRPBM.a/RPBM.a)^2+(uRPBM.kappa/RPBM.kappa)^2);
-
 
 stringRPBM(RPBM,uRPBM)
 

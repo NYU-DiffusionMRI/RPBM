@@ -40,6 +40,7 @@ if UseWeights==1; W=1./(uDR.^2); else; W=1; end                            %Weig
 % Conversely if the structure of interest is highly restricted (small
 % diameters), diffusion times may be too long to accurately estimate D0.
 Dfix = mean(DL(time>200));                                                 %Fixing D0 to L1(t~inf)
+uDfix = std(DL(time>200));  
 
 opt = fitoptions('Method','NonlinearLeastSquares',...
     'Lower',[0,0],...
@@ -48,11 +49,10 @@ opt = fitoptions('Method','NonlinearLeastSquares',...
     'Robust','bisquare',...
     'Weights',W);
 fitDapp = fittype('D*get_Dt_2015(x/tau,zeta)','problem','D','options',opt);
-[fitresult,gof] = fit(time',DR',fitDapp,'problem',double(Dfix));
-[RPBM_F,uRPBM_F]=RPBM_Process([Dfix,coeffvalues(fitresult)],[0,0;confint(fitresult)']);%Calculate Various RPBM Parameters and save in structure
+[fitresult_F,gof_F] = fit(time',DR',fitDapp,'problem',double(Dfix));
+[RPBM_F,uRPBM_F]=RPBM_Process([Dfix,coeffvalues(fitresult_F)],[uDfix,uDfix;confint(fitresult_F)']);%Calculate Various RPBM Parameters and save in structure
 txn=linspace(1,100000,100000);
-RPBM_FIX=squeeze(fitDapp(fitresult.tau,fitresult.zeta,fitresult.D,txn));
-
+RPBM_FIX=squeeze(fitDapp(fitresult_F.tau,fitresult_F.zeta,fitresult_F.D,txn));
 
 %% Fitting by Varying D0
 % If there is sufficient SNR and sampling of t, fitting over 3 parameters
@@ -67,11 +67,11 @@ opt = fitoptions('Method','NonlinearLeastSquares',...
     'Robust','bisquare',...
     'Weights',W);
 fitDapp = fittype('D*get_Dt_2015(x/tau,zeta)','options',opt);
-[fitresult,gof] = fit(time',DR',fitDapp);
-[RPBM_V,uRPBM_V]=RPBM_Process([coeffvalues(fitresult)],[confint(fitresult)']);%Calculate Various RPBM Parameters and save in structure
+[fitresult_V,gof] = fit(time',DR',fitDapp);
+[RPBM_V,uRPBM_V]=RPBM_Process([coeffvalues(fitresult_V)],[confint(fitresult_V)']);%Calculate Various RPBM Parameters and save in structure
 
 txn=linspace(1,100000,100000);
-RPBM_VARY=squeeze(fitDapp(fitresult.D,fitresult.tau,fitresult.zeta,txn));
+RPBM_VARY=squeeze(fitDapp(fitresult_V.D,fitresult_V.tau,fitresult_V.zeta,txn));
 
 %% Plotting Fits
 % Much of the transient time-dependence of D(t) happens at the shortest
