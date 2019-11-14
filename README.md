@@ -9,6 +9,9 @@ D(t) resembles a power-law decay, which is largely unremarkable. This is problem
 
 Our solution is to perform Grid-search fitting numerous times with various noise realizations. In doing so, we can rapidly sample the shallow fitting landscape to determine the global minimum.
 
+![]()
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------
 Please cite the following works.
 
