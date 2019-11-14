@@ -14,6 +14,7 @@ D(t) resembles a power-law decay, which is largely unremarkable. This is problem
 <img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Fitting_Landscape.png" width="300" >
 </p>
 Our solution is to perform Grid-search fitting numerous times with various noise realizations. In doing so, we can rapidly sample the shallow fitting landscape to determine the global minimum.
+
 ------------------------------------------------------------------------------------------------------------------------------------------
 Please cite the following works.
 
