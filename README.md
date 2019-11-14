@@ -4,7 +4,7 @@ The following scripts are intended for the use in modeling the dependence of dif
 Moreover, the RPBM has been identified as a powerful model to describe the microstructure of muscle tissue. It has been applied in-vivo for quantifying muscle myofiber diameter and sarcolemma membrane permeability (3,4). 
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Sample_Maps.png" width="700" >
+<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Sample_Maps.png" width="900" >
 </p>
 
 
