@@ -4,9 +4,12 @@ The following scripts are intended for the use in modeling the dependence of dif
 Moreover, the RPBM has been identified as a powerful model to describe the microstructure of muscle tissue. It has been applied in-vivo for quantifying muscle myofiber diameter and sarcolemma membrane permeability (3,4). 
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Fitting_Landscape.png" width="300" >
+<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/TDD_.png" width="300" >
 </p>
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Sample_Maps.png" width="300" >
+</p>
 ------------------------------------------------------------------------------------------------------------------------------------------
 # On Fitting [Added November 2019]
 D(t) resembles a power-law decay, which is largely unremarkable. This is problematic in regards to fitting, where standard non-linear approaches such as Levenberg-Marquardt would either be (1) deflected by noise or (2) become stuck in a shallow minimum.
