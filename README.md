@@ -7,10 +7,6 @@ Moreover, the RPBM has been identified as a powerful model to describe the micro
 <img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/Sample_Maps.png" width="800" >
 </p>
 
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/NYU-DiffusionMRI/RPBM/master/TDD_.png" width="500" >
-</p>
 ------------------------------------------------------------------------------------------------------------------------------------------
 # On Fitting [Added November 2019]
 D(t) resembles a power-law decay, which is largely unremarkable. This is problematic in regards to fitting, where standard non-linear approaches such as Levenberg-Marquardt would either be (1) deflected by noise or (2) become stuck in a shallow minimum.
