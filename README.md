@@ -4,6 +4,12 @@ The following scripts are intended for the use in modeling the dependence of dif
 Moreover, the RPBM has been identified as a powerful model to describe the microstructure of muscle tissue. It has been applied in-vivo for quantifying muscle myofiber diameter and sarcolemma membrane permeability (3,4). 
 
 ------------------------------------------------------------------------------------------------------------------------------------------
+# On Fitting [Added November 2019]
+D(t) resembles a power-law decay, which is largely unremarkable. This is problematic in regards to fitting, where standard non-linear approaches such as Levenberg-Marquardt would either be (1) deflected by noise or (2) become stuck in a shallow minimum. 
+
+Our solution is to perform Grid-search fitting numerous times with various noise realizations. In doing so, we can rapidly sample the shallow fitting landscape to determine the global minimum. 
+
+------------------------------------------------------------------------------------------------------------------------------------------
 Please cite the following works.
 
 (1)Novikov DS, Fieremans E, Jensen JH, Helpern JA. Random walk with barriers. Nat Phys 2011; 7(6): 508–514. DOI:10.1038/nphys1936.6. 
