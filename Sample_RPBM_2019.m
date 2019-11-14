@@ -138,6 +138,14 @@ parfor nx=1:Nm
 end
 toc
 %% Plotting RPBM FIT
+[Nx,Ny,Nz,Nt]=size(DRimg);
+Nm=Nx*Ny*Nz;
+L1img_=reshape(L1img,[Nx*Ny*Nz,Nt]);
+DRimg_=reshape(DRimg,[Nx*Ny*Nz,Nt]);
+
+D0=mean(L1img_(:,time>200),2);
+uD0=std(L1img_(:,time>200),[],2);
+
 load('RPBMMatch.mat')
 clear RPBMimg uRPBMimg a_img kappa_img SV_img zeta_img tau_img TD_img TR_img tortuosity_img
 mTT=median(TT_   ,2);
@@ -178,7 +186,7 @@ XL=[0 40;
     0 600
     0 10];
 XLname={'$\bar{a}\,[\mu m]$','$\kappa\,[\mu m/ms]$','$D_0\,[\mu m^2/ms]$','$\zeta$','$\tau\,[ms]$','$T_{D}\,[ms]$','$T_{R}\,[ms]$','Tortuosity'};
-figure(5);
+figure(2);
 for pm=1:8
     subplot(2,4,pm)
     imagesc(rot90(PM(:,:,pm)),XL(pm,:))
